@@ -8,6 +8,7 @@ import com.android.peoplefinder.activity.Db.User
 import com.android.peoplefinder.dataclass.Response
 
 import com.android.peoplefinder.interfaces.ApiInterface
+import com.google.gson.JsonObject
 import kotlinx.coroutines.flow.Flow
 
 class CommonRepository(
@@ -17,6 +18,7 @@ class CommonRepository(
     suspend fun getUserData(request: HashMap<String, Int>): retrofit2.Response<Response> {
         return apiService.getUserData(request)
     }
+
 
     fun getSearchResults(query: String): Flow<PagingData<User>> {
         return Pager(

@@ -4,5 +4,6 @@
     <string name="internal_server_error">Internal server error</string>
     <string name="please_try_again">Please try again</string>
     <string name="name">Name</string>
+    <string name="search">Search...</string>
 
 </resources>

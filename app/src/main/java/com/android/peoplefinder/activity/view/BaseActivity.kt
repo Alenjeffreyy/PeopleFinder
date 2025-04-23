@@ -15,7 +15,7 @@ import com.android.peoplefinder.viewmodel.CommonViewModel
 
 
  open class BaseActivity : AppCompatActivity(), ApiListeners {
-    // Dependencies that would be injected manually
+
     protected lateinit var sessionManager: SessionManager
     protected lateinit var apiInterface: ApiInterface
     protected var commonViewModel: CommonViewModel? = null
@@ -23,18 +23,12 @@ import com.android.peoplefinder.viewmodel.CommonViewModel
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Initialize dependencies (to be implemented by child activities)
 
 
-        // Font scale configuration
         val configuration: Configuration = resources.configuration
         configuration.fontScale = 0.85f
         resources.updateConfiguration(configuration, resources.displayMetrics)
     }
-
-    /**
-     * Child activities must implement this to provide dependencies
-     */
 
 
     /**

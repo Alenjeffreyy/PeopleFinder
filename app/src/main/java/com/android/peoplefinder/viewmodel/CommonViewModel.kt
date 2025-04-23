@@ -42,7 +42,6 @@ class CommonViewModel(
         hashMap: HashMap<String, Int>
     ): NetworkResult<Any> {
         return try {
-            // Fetch data from repository or API service
             val response = when (requestCode) {
                 Enums.REQ_DATA -> commonRepository.getUserData(hashMap) // Assume this returns a Response object
                 else -> return NetworkResult.Error("Unknown requestCode", requestCode = requestCode)
@@ -50,13 +49,8 @@ class CommonViewModel(
 
             Log.d("apiRequestSuspended", "Response: ${response.body().toString() ?: "Response is null"}")
 
-            // If the response is valid, parse it
             response.body()?.let {
                 try {
-                    // Parse the response and insert it into the database
-
-
-                    // Assuming the response is a JSON object with a "results" key
                     val parsedResponse = it as? com.android.peoplefinder.dataclass.Response
                     parsedResponse?.let { response ->
                         val userList = response.results
@@ -71,7 +65,6 @@ class CommonViewModel(
                 }
             } ?: NetworkResult.Error("Response is null", requestCode = requestCode)
         } catch (e: Exception) {
-            // Log the error and return the error result
             Log.e("apiRequestSuspended", "Error occurred: ${e.message}")
             NetworkResult.Error(e.message ?: "Unknown error", requestCode = requestCode)
         }
@@ -86,26 +79,22 @@ class CommonViewModel(
         try {
             val usersToInsert = mutableListOf<User>()
 
-            // Iterate through each result and build the User objects
             for (userData in response.results) {
                 val user = User(
-                    uuid = userData.login.username,  // Access the login username
-                    firstName = userData.name.first,  // Access first name
-                    lastName = userData.name.last,    // Access last name
-                    gender = userData.gender,         // Gender
+                    uuid = userData.login.username,
+                    firstName = userData.name.first,
+                    lastName = userData.name.last,
+                    gender = userData.gender,
                     location = "${userData.location.street.number} ${userData.location.street.name}, ${userData.location.city}, ${userData.location.country}", // Location
-                    email = userData.email,           // Email
-                    phone = userData.phone,           // Phone
-                    cell = userData.cell,             // Cell
-                    picture = userData.picture.medium, // Profile picture URL
-                    nationality = userData.nat        // Nationality
+                    email = userData.email,
+                    phone = userData.phone,
+                    cell = userData.cell,
+                    picture = userData.picture.medium,
+                    nationality = userData.nat
                 )
-
-                // Add the user to the list for insertion
                 usersToInsert.add(user)
             }
 
-            // Insert into the local repository (e.g., database) only if there are users
             if (usersToInsert.isNotEmpty()) {
                 localRepository.insertUsers(usersToInsert)
             }

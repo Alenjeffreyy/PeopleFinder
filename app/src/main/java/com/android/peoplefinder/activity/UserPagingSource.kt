@@ -23,11 +23,9 @@ class UserPagingSource(private val viewModel: CommonViewModel) : PagingSource<In
 
             when (result) {
                 is NetworkResult.Success -> {
-                    // Mapping API response to User data
                     val getUserList = result.data as? List<getUser> ?: emptyList()
                     val userList = getUserList.map { mapToUser(it) }
 
-                    // Returning paginated data
                     LoadResult.Page(
                         data = userList,
                         prevKey = if (page == 1) null else page - 1,
@@ -49,7 +47,6 @@ class UserPagingSource(private val viewModel: CommonViewModel) : PagingSource<In
         }
     }
 
-    // Mapping function from getUser to User
     fun mapToUser(apiUser: getUser): User {
         return User(
             uuid = apiUser.login.username,

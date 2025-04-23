@@ -2,6 +2,8 @@ import android.content.Context
 import com.android.peoplefinder.client.AppController
 import com.android.peoplefinder.client.NetworkInterceptor
 import com.android.peoplefinder.helper.Constants
+import com.android.peoplefinder.helper.Constants.BASE_URL
+import com.android.peoplefinder.helper.Constants.WEATHER_API_URL
 import com.android.peoplefinder.interfaces.ApiInterface
 import com.google.gson.FieldNamingPolicy
 import com.google.gson.Gson
@@ -14,15 +16,12 @@ import java.util.concurrent.TimeUnit
 
 object NetworkProvider {
 
-    private var retrofit: Retrofit? = null
     private var okHttpClient: OkHttpClient? = null
     private var gson: Gson? = null
-    private var apiService: ApiInterface? = null
 
     fun init(context: Context) {
         getOkHttpClient(context)
-        getRetrofit(context)
-        getApiService()
+        getGson()
     }
 
     fun getHttpLoggingInterceptor(): HttpLoggingInterceptor {
@@ -50,20 +49,20 @@ object NetworkProvider {
             .also { okHttpClient = it }
     }
 
-    fun getRetrofit(context: Context): Retrofit {
-        return retrofit ?: Retrofit.Builder()
-            .baseUrl(Constants.BASE_URL)
+
+    fun getRetrofit(context: Context, baseUrl: String): Retrofit {
+        return Retrofit.Builder()
+            .baseUrl(baseUrl)
             .addConverterFactory(GsonConverterFactory.create(getGson()))
             .client(getOkHttpClient(context))
             .build()
-            .also { retrofit = it }
     }
 
-    fun getApiService(): ApiInterface {
-        return apiService ?: getRetrofit(AppController.appContext)
+    fun getApiService(context: Context, baseUrl: String): ApiInterface {
+        return getRetrofit(context, baseUrl)
             .create(ApiInterface::class.java)
-            .also { apiService = it }
     }
 }
+
 
 
