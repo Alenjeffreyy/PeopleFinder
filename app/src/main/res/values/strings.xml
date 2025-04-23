@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">PeopleFinder</string>
+    <string name="network_connection">Please check internet connection</string>
+    <string name="internal_server_error">Internal server error</string>
+    <string name="please_try_again">Please try again</string>
+
+</resources>

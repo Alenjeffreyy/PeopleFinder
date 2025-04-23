@@ -1,0 +1,135 @@
+[versions]
+agp = "8.6.0"
+converterGson = "2.9.0"
+githubGlide = "4.12.0"
+glideVersion = "4.13."
+gsonVersion = "2.10.1"
+hiltAndroid = "2.50"
+hiltCompiler = "2.50"
+kotlin = "1.9.22"
+coreSplashscreen = "1.0.1"
+coreKtx = "1.10.1"
+junit = "4.13.2"
+junitVersion = "1.2.1"
+espressoCore = "3.6.1"
+appcompat = "1.7.0"
+lifecycleLivedataKtx = "2.6.2"
+loggingInterceptor = "4.12.0"
+material = "1.12.0"
+activity = "1.9.3"
+constraintlayout = "2.2.0"
+google_services = "4.4.1"
+glide = "4.16.0"
+okhttp = "4.12.0"
+playServicesLocation = "21.3.0"
+playServicesLocationKtx = "21.2.0"
+playServicesLocationVersion = "21.2.0"
+retrofit = "2.10.0"
+gson = "2.10.0"
+firebase-core = "18.0.2"
+firebase-messaging = "21.1.0"
+firebasecrashlytics = "18.4.0"
+firebase_crashlytics = "2.9.9"
+firebase-analytics = "19.0.0"
+firebase-inappmessaging-display = "20.3.2"
+firebase-messaging-directboot = "20.2.0"
+restring = "5.1.0"
+retrofitVersion = "2.9.0"
+viewpump = "3.0.1"
+reword = "2.0.2"
+applocale = "2.0.2"
+sdp = "1.1.0"
+ssp = "1.1.0"
+room = "2.6.1"
+multidex="2.0.1"
+gradle = "8.0.2"
+androidApt = "1.8"
+androidMaven = "2.1"
+navigation = "2.7.0"
+lifecycle = "2.6.1"
+piechart="v3.1.0"
+biometric = "1.0.1"
+okhttp_version = "5.0.0-alpha.11"
+pagingCommonAndroid = "3.3.6"
+leanbackPaging = "1.1.0-rc01"
+hilt-version = "2.48"
+androidx-hilt-version = "1.0.0"
+ksp-version = "1.9.22-1.0.17"
+hilt-androidx-version = "1.1.0"
+hilt = "2.48"
+[libraries]
+androidx-room-paging = { module = "androidx.room:room-paging", version.ref = "room" }
+hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }
+hilt-compiler = { group = "com.google.dagger", name = "hilt-compiler", version.ref = "hilt" }
+androidx-hilt-navigation = { group = "androidx.hilt", name = "hilt-navigation-fragment", version = "1.1.0" }
+androidx-hilt-compiler = { group = "androidx.hilt", name = "hilt-compiler", version = "1.1.0" }
+
+room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
+room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }
+room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
+
+converter-gson-v290 = { module = "com.squareup.retrofit2:converter-gson", version.ref = "converterGson" }
+gson = { module = "com.google.code.gson:gson", version.ref = "gsonVersion" }
+hilt-compiler-v250 = { module = "com.google.dagger:hilt-compiler", version.ref = "hiltCompiler" }
+hilt-android-v250 = { module = "com.google.dagger:hilt-android", version.ref = "hiltAndroid" }
+hilt-core = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt-version" }
+androidx-lifecycle-livedata-ktx-v262 = { module = "androidx.lifecycle:lifecycle-livedata-ktx", version.ref = "lifecycleLivedataKtx" }
+glide-v4120 = { module = "com.github.bumptech.glide:glide", version.ref = "githubGlide" }
+glide-v413 = { module = "com.github.bumptech.glide:glide", version.ref = "glideVersion" }
+logging-interceptor-v4120 = { module = "com.squareup.okhttp3:logging-interceptor", version.ref = "loggingInterceptor" }
+okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
+play-services-location = { module = "com.google.android.gms:play-services-location", version.ref = "playServicesLocation" }
+play-services-location-ktx = { module = "com.google.android.gms:play-services-location-ktx", version.ref = "playServicesLocationKtx" }
+play-services-location-v2120 = { module = "com.google.android.gms:play-services-location", version.ref = "playServicesLocationVersion" }
+androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+androidx-core-splashscreen = { module = "androidx.core:core-splashscreen", version.ref = "coreSplashscreen" }
+retrofit-v290 = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofitVersion" }
+
+junit = { group = "junit", name = "junit", version.ref = "junit" }
+androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
+androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
+androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+material = { group = "com.google.android.material", name = "material", version.ref = "material" }
+androidx-activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
+androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
+glide = { group = "com.github.bumptech.glide", name = "glide", version.ref = "glide" }
+glidecompiler = { group = "com.github.bumptech.glide", name = "compiler", version.ref = "glide" }
+retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" }
+retrofitgson= { group = "com.squareup.retrofit2", name = "converter-gson", version.ref = "gson" }
+okhttp_logging_interceptor = { group = "com.squareup.okhttp3", name = "logging-interceptor", version.ref = "okhttp_version" }
+firebasecore = { group = "com.google.firebase", name = "firebase-core", version.ref = "firebase-core" }
+firebasemessaging = { group = "com.google.firebase", name = "firebase-messaging", version.ref = "firebase-messaging" }
+firebasecrashlytics = { group = "com.google.firebase", name = "firebase-crashlytics", version.ref = "firebasecrashlytics" }
+firebaseanalytics = { group = "com.google.firebase", name = "firebase-analytics", version.ref = "firebase-analytics" }
+firebaseinappmessagingdisplay = { group = "com.google.firebase", name = "firebase-inappmessaging-display", version.ref = "firebase-inappmessaging-display" }
+firebasemessagingdirectboot = { group = "com.google.firebase", name = "firebase-messaging-directboot", version.ref = "firebase-messaging-directboot" }
+sdp = { group = "com.intuit.sdp", name = "sdp-android", version.ref = "sdp" }
+ssp = { group = "com.intuit.ssp", name = "ssp-android", version.ref = "ssp" }
+mulitdex = { group = "androidx.multidex", name = "multidex", version.ref = "multidex" }
+android-gradle = { module = "com.android.tools.build:gradle", version.ref = "gradle" }
+android-apt = { module = "com.neenbedankt.gradle.plugins:android-apt", version.ref = "androidApt" }
+piechart = { module = "com.github.PhilJay:MPAndroidChart", version.ref = "piechart" }
+google-services = { module = "com.google.gms:google-services", version.ref = "google_services" }
+android-maven-gradle = { module = "com.github.dcendents:android-maven-gradle-plugin", version.ref = "androidMaven" }
+firebase-crashlytics = { module = "com.google.firebase:firebase-crashlytics-gradle", version.ref = "firebase_crashlytics" }
+kotlin-gradle-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
+navigation-fragment = { module = "androidx.navigation:navigation-fragment-ktx", version.ref = "navigation" }
+navigation-ui = { module = "androidx.navigation:navigation-ui-ktx", version.ref = "navigation" }
+lifecycle-process = { group = "androidx.lifecycle", name = "lifecycle-process", version.ref = "lifecycle" }
+lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycle" }
+lifecycle-livedata-ktx = { group = "androidx.lifecycle", name = "lifecycle-livedata-ktx", version.ref = "lifecycle" }
+restring = { group = "dev.b3nedikt.restring", name = "restring", version.ref = "restring" }
+viewpump = { group = "dev.b3nedikt.viewpump", name = "viewpump", version.ref = "viewpump" }
+reword = { group = "dev.b3nedikt.reword", name = "reword", version.ref = "reword" }
+applocale = { group = "dev.b3nedikt.applocale", name = "applocale", version.ref = "applocale" }
+androidx-biometric = { group = "androidx.biometric", name = "biometric", version.ref = "biometric" }
+androidx-paging-common-android = { group = "androidx.paging", name = "paging-common-android", version.ref = "pagingCommonAndroid" }
+androidx-leanback-paging = { group = "androidx.leanback", name = "leanback-paging", version.ref = "leanbackPaging" }
+[plugins]
+android-application = { id = "com.android.application", version.ref = "agp" }
+kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+google-service = { id = "com.google.gms.google-services", version.ref = "google_services" }
+firebase-crashlytics = { id = "com.google.firebase.crashlytics", version.ref = "firebase_crashlytics" }
+hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt-version" }
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp-version" }
+hilt-android = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
