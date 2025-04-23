@@ -1,13 +1,9 @@
 package com.android.peoplefinder.viewmodel
 
-import android.content.Context
-import android.widget.Toast
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
-import com.android.peoplefinder.R
 import com.android.peoplefinder.activity.Db.ApiResponse
 import com.android.peoplefinder.activity.Db.User
 import com.android.peoplefinder.activity.repository.CommonRepository
@@ -21,15 +17,15 @@ import com.google.gson.Gson
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 
-import retrofit2.Response
 
-import androidx.lifecycle.ViewModelProvider
+
 import android.app.Application
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.viewModelScope
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
-import kotlinx.coroutines.launch
+import com.android.peoplefinder.activity.UserPagingSource
+import com.android.peoplefinder.dataclass.Response
 import org.json.JSONObject
 
 
@@ -41,82 +37,90 @@ class CommonViewModel(
 ) : AndroidViewModel(application) {
 
     private val scope = viewModelScope
-    val liveDataResponse = MutableLiveData<NetworkResult<Any>>()
-    private var responseCode: Int? = null
-
-    fun apiRequest(
+    suspend fun apiRequestSuspended(
         requestCode: Int,
-        hashMap: HashMap<String, Any>,
-    ) {
-        liveDataResponse.value = NetworkResult.Loading(true, requestCode = requestCode)
-        scope.launch {
-            try {
-                val response = when (requestCode) {
-                    Enums.REQ_DATA -> commonRepository.getUserData(hashMap)
-                    else -> return@launch
-                }
-
-                val handler = apiExceptionHandler.exceptionHandler(response as Response<Any>, getApplication())
-                responseCode = requestCode
-
-                if (handler.isSuccess) {
-                    response.body()?.let { body ->
-                        liveDataResponse.value = NetworkResult.Success(body, requestCode)
-                        insertResponseInDatabase(Gson().toJson(body), requestCode)
-                    }
-                } else {
-                    liveDataResponse.value = NetworkResult.Error(
-                        handler.errorResonse,
-                        data = response.body(),
-                        requestCode = requestCode
-                    )
-                }
-            } catch (e: Exception) {
-                liveDataResponse.value = NetworkResult.Error(
-                    e.message ?: "Unknown error",
-                    requestCode = requestCode
-                )
-            } finally {
-                liveDataResponse.value = NetworkResult.Loading(false, requestCode = requestCode)
+        hashMap: HashMap<String, Int>
+    ): NetworkResult<Any> {
+        return try {
+            // Fetch data from repository or API service
+            val response = when (requestCode) {
+                Enums.REQ_DATA -> commonRepository.getUserData(hashMap) // Assume this returns a Response object
+                else -> return NetworkResult.Error("Unknown requestCode", requestCode = requestCode)
             }
+
+            Log.d("apiRequestSuspended", "Response: ${response.body().toString() ?: "Response is null"}")
+
+            // If the response is valid, parse it
+            response.body()?.let {
+                try {
+                    // Parse the response and insert it into the database
+
+
+                    // Assuming the response is a JSON object with a "results" key
+                    val parsedResponse = it as? com.android.peoplefinder.dataclass.Response
+                    parsedResponse?.let { response ->
+                        val userList = response.results
+                        insertResponseInDatabase(response, requestCode)
+                        Log.d("apiRequestSuspended", "Parsed User List: $userList")
+                        NetworkResult.Success(userList, requestCode)
+                    } ?: NetworkResult.Error("Parsed response is null", requestCode = requestCode)
+
+                } catch (parseException: Exception) {
+                    Log.e("apiRequestSuspended", "Error parsing response: ${parseException.message}")
+                    NetworkResult.Error("Error parsing response", requestCode = requestCode)
+                }
+            } ?: NetworkResult.Error("Response is null", requestCode = requestCode)
+        } catch (e: Exception) {
+            // Log the error and return the error result
+            Log.e("apiRequestSuspended", "Error occurred: ${e.message}")
+            NetworkResult.Error(e.message ?: "Unknown error", requestCode = requestCode)
         }
     }
 
-    private suspend fun insertResponseInDatabase(response: String, requestCode: Int) {
-        try {
-            val jsonResponse = JSONObject(response)
-            val resultsArray = jsonResponse.getJSONArray("results")
 
+
+
+
+
+    private suspend fun insertResponseInDatabase(response: Response, requestCode: Int) {
+        try {
             val usersToInsert = mutableListOf<User>()
 
-            for (i in 0 until resultsArray.length()) {
-                val userJson = resultsArray.getJSONObject(i)
-
-
+            // Iterate through each result and build the User objects
+            for (userData in response.results) {
                 val user = User(
-                    uuid = userJson.getJSONObject("login").getString("username"),
-                    firstName = userJson.getJSONObject("name").getString("first"),
-                    lastName = userJson.getJSONObject("name").getString("last"),
-                    gender = userJson.getString("gender"),
-                    location = "${userJson.getJSONObject("location").getString("street")} ${userJson.getJSONObject("location").getString("city")}, ${userJson.getJSONObject("location").getString("country")}",
-                    email = userJson.getString("email"),
-                    phone = userJson.getString("phone"),
-                    cell = userJson.getString("cell"),
-                    picture = userJson.getJSONObject("picture").getString("medium"),
-                    nationality = userJson.getString("nat")
+                    uuid = userData.login.username,  // Access the login username
+                    firstName = userData.name.first,  // Access first name
+                    lastName = userData.name.last,    // Access last name
+                    gender = userData.gender,         // Gender
+                    location = "${userData.location.street.number} ${userData.location.street.name}, ${userData.location.city}, ${userData.location.country}", // Location
+                    email = userData.email,           // Email
+                    phone = userData.phone,           // Phone
+                    cell = userData.cell,             // Cell
+                    picture = userData.picture.medium, // Profile picture URL
+                    nationality = userData.nat        // Nationality
                 )
 
-
+                // Add the user to the list for insertion
                 usersToInsert.add(user)
             }
 
-
+            // Insert into the local repository (e.g., database) only if there are users
             if (usersToInsert.isNotEmpty()) {
                 localRepository.insertUsers(usersToInsert)
             }
         } catch (e: Exception) {
             e.printStackTrace()
+            Log.e("insertResponseInDatabase", "Error: ${e.message}")
         }
+    }
+
+
+
+    fun getUsers(): Flow<PagingData<User>> {
+        return Pager(PagingConfig(pageSize = 20)) {
+            UserPagingSource(this)
+        }.flow.cachedIn(viewModelScope)
     }
 
     val pagedUsers: Flow<PagingData<User>> = Pager(PagingConfig(pageSize = 20)) {

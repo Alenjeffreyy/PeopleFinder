@@ -5,23 +5,19 @@ import android.content.res.Resources
 import android.graphics.Rect
 import android.os.Bundle
 import android.view.View
-import androidx.activity.viewModels
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.doAfterTextChanged
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.cachedIn
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
-import androidx.recyclerview.widget.StaggeredGridLayoutManager.GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS
-import androidx.recyclerview.widget.StaggeredGridLayoutManager.VERTICAL
 import com.android.peoplefinder.activity.Db.AppDataBase
 import com.android.peoplefinder.activity.Db.User
 import com.android.peoplefinder.activity.repository.CommonRepository
 import com.android.peoplefinder.activity.repository.LocalDBRepository
 import com.android.peoplefinder.activity.view.BaseActivity
-import com.android.peoplefinder.adapter.LoadingStateAdapter
 import com.android.peoplefinder.adapter.UserAdapter
 import com.android.peoplefinder.databinding.ActivityMainBinding
 import com.android.peoplefinder.helper.Enums
@@ -35,10 +31,12 @@ import com.google.gson.JsonObject
 import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-
+import kotlinx.coroutines.withContext
 
 
 class MainActivity : BaseActivity() {
@@ -46,6 +44,7 @@ class MainActivity : BaseActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var viewModel: CommonViewModel
     private lateinit var userAdapter: UserAdapter
+    private var searchJob: Job? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -66,53 +65,58 @@ class MainActivity : BaseActivity() {
 
 
          viewModel = ViewModelProvider(this, factory).get(CommonViewModel::class.java)
-        getUserDetails()
+
         userAdapter = UserAdapter { user ->
             // handle click
         }
 
         binding.rvUser.apply {
-            layoutManager = GridLayoutManager(context, 2) // 2 columns
+
+            layoutManager = StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL) // 2 columns
             adapter = userAdapter
             addItemDecoration(MarginItemDecoration(12.dpToPx())) // 12dp spacing
         }
 
-        // Item decoration class
+        val pager = Pager(
+            config = PagingConfig(
+                pageSize = 25,
+                enablePlaceholders = false
+            ),
+            pagingSourceFactory = { UserPagingSource(viewModel) }
+        ).flow.cachedIn(lifecycleScope)
 
-
-        // Extension to convert dp to pixels
-
-
-
-        lifecycleScope.launch {
-            viewModel.pagedUsers.collectLatest { pagingData ->
+        lifecycleScope.launchWhenStarted {
+            pager.collectLatest { pagingData ->
                 userAdapter.submitData(pagingData)
             }
         }
 
 
+
+
+
         binding.edtSearch.doAfterTextChanged { text ->
-            text?.let {
-                if (it.isNotEmpty()) {
-                    lifecycleScope.launch {
-                        viewModel.searchUsers(it.toString()).collectLatest { pagingData ->
-                            userAdapter.submitData(pagingData)
-                        }
+            searchJob?.cancel()
+            searchJob = lifecycleScope.launch {
+                delay(300)
+
+                val query = text?.toString().orEmpty()
+
+                if (query.isNotEmpty()) {
+                    viewModel.searchUsers(query).collectLatest { pagingData ->
+                        userAdapter.submitData(pagingData)
                     }
                 } else {
-
+                    viewModel.getUsers().collectLatest { pagingData ->
+                        userAdapter.submitData(pagingData)
+                    }
                 }
             }
         }
+
+
     }
 
-    private fun getUserDetails(){
-        val hashMap = HashMap<String, Any>().apply {
-            put("results", 25)
-
-        }
-        viewModel.apiRequest(Enums.REQ_DATA, hashMap)
-    }
 
     private fun updateUserData(data: Any?) {
         val jsonData = if (data is String) data else Gson().toJson(data)
@@ -123,7 +127,7 @@ class MainActivity : BaseActivity() {
 
             // Parse the JSON into a List of User objects
             val type = object : TypeToken<List<User>>() {}.type
-            val users: List<User> = Gson().fromJson(responseJson, type)
+
 
             // Get the DAO instance
             val localRepository = LocalDBRepository(AppDataBase.getInstance(application).getLocalDBDao())
@@ -131,7 +135,7 @@ class MainActivity : BaseActivity() {
 
             CoroutineScope(Dispatchers.IO).launch {
                 // Insert all users at once
-                localRepository.insertUsers(users)
+                localRepository.insertApiResponse(Gson().fromJson(responseJson, type))
             }
 
         } catch (e: Exception) {
