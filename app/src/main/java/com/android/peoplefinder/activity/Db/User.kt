@@ -18,7 +18,9 @@ data class User(
     val email: String,
     val phone: String,
     val cell: String,
-    val picture: String,
+    val pictureMedium: String,
+    val pictureLarge: String,
+    val pictureThumbnail: String,
     val nationality: String
 
 )

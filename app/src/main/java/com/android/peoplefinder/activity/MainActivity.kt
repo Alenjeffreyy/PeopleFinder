@@ -10,8 +10,11 @@ import android.graphics.Rect
 import android.location.Location
 import android.net.Uri
 import android.os.Bundle
+import android.os.Parcelable
 import android.provider.Settings
+import android.util.Log
 import android.view.View
+import com.bumptech.glide.Glide
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -53,13 +56,17 @@ class MainActivity : BaseActivity() {
     private lateinit var userAdapter: UserAdapter
     private var searchJob: Job? = null
     private lateinit var fusedLocationClient: FusedLocationProviderClient
+    private var rvViewedState: Parcelable? = null
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
-
+        savedInstanceState?.let {
+            rvViewedState = it.getParcelable("rvViewedState")
+        }
         setupViewModel()
         checkLocationPermission()
         setupSearchListener()
@@ -77,6 +84,8 @@ class MainActivity : BaseActivity() {
         )
         viewModel = ViewModelProvider(this, factory).get(CommonViewModel::class.java)
 
+
+
         userAdapter = UserAdapter { user ->
 
         }
@@ -84,9 +93,11 @@ class MainActivity : BaseActivity() {
         binding.rvUser.apply {
             layoutManager = StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL)
             adapter = userAdapter
-            addItemDecoration(MarginItemDecoration(12.dpToPx()))
-        }
 
+        }
+        rvViewedState?.let { state ->
+            binding.rvUser.layoutManager?.onRestoreInstanceState(state)
+        }
         val pager = Pager(
             config = PagingConfig(pageSize = 25, enablePlaceholders = false),
             pagingSourceFactory = { UserPagingSource(viewModel) }
@@ -108,6 +119,7 @@ class MainActivity : BaseActivity() {
                 if (query.isNotEmpty()) {
                     viewModel.searchUsers(query).collectLatest { pagingData ->
                         userAdapter.submitData(pagingData)
+
                     }
                 } else {
                     viewModel.getUsers().collectLatest { pagingData ->
@@ -128,7 +140,6 @@ class MainActivity : BaseActivity() {
             }
         }
     }
-
 
     private fun getCurrentLocation() {
         if (ActivityCompat.checkSelfPermission(
@@ -163,7 +174,7 @@ class MainActivity : BaseActivity() {
 
 
     private fun fetchWeatherAndAirQuality(latitude: Double, longitude: Double) {
-        val weatherApiService = NetworkProvider.getRetrofit(this,WEATHER_API_URL, ).create(ApiInterface::class.java)
+        val weatherApiService = NetworkProvider.getRetrofit(this, WEATHER_API_URL).create(ApiInterface::class.java)
 
         val params = hashMapOf(
             "lat" to latitude.toString(),
@@ -179,11 +190,20 @@ class MainActivity : BaseActivity() {
                 if (response.isSuccessful) {
                     val json = response.body()
                     val temp = json?.getAsJsonObject("main")?.get("temp")?.asDouble
-                    val description = json?.getAsJsonArray("weather")
-                        ?.get(0)?.asJsonObject?.get("description")?.asString
+                    val cityName = json?.get("name")?.asString
+                    Log.d("CityName", "City Name: $cityName")
+                    val description = json?.getAsJsonArray("weather")?.get(0)?.asJsonObject?.get("description")?.asString
+                    val iconCode = json?.getAsJsonArray("weather")?.get(0)?.asJsonObject?.get("icon")?.asString
 
+                    // Set values to toolbar views
+                    binding.rltHeadTitle.tvTempCity.text = "${temp?.toInt()}° $cityName"  // Show the dynamic city name
+                    binding.rltHeadTitle.tvCondition.text = description?.replaceFirstChar { it.uppercase() }
 
-                    // binding.weatherInfo.text = "Temp: $temp°C, $description"
+                    val iconUrl = "https://openweathermap.org/img/wn/${iconCode}@2x.png"
+                    Glide.with(this@MainActivity)
+                        .load(iconUrl)
+                        .into(binding.rltHeadTitle.ivWeatherIcon)
+
                 } else {
                     Toast.makeText(this@MainActivity, "Error: ${response.message()}", Toast.LENGTH_SHORT).show()
                 }
@@ -193,6 +213,8 @@ class MainActivity : BaseActivity() {
             }
         }
     }
+
+
 
 
 

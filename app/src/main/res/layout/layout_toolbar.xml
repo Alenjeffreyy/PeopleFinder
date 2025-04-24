@@ -54,6 +54,47 @@
                 android:layout_marginEnd="20dp"
                 android:paddingBottom="3dp"
                 />
+            <LinearLayout
+                android:id="@+id/weather_layout"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingEnd="5dp">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingEnd="4dp">
+
+                    <TextView
+                        android:id="@+id/tv_temp_city"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="31° Coimbatore"
+                        android:textColor="@android:color/white"
+                        android:textStyle="bold"
+                        android:textSize="12sp" />
+
+                    <TextView
+                        android:id="@+id/tv_condition"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Scattered Clouds"
+                        android:textColor="@android:color/white"
+                        android:textSize="10sp" />
+                </LinearLayout>
+
+                <ImageView
+                    android:id="@+id/iv_weather_icon"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:contentDescription="Weather icon" />
+            </LinearLayout>
+
 
         </RelativeLayout>
 

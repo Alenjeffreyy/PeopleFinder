@@ -49,6 +49,7 @@ class UserPagingSource(private val viewModel: CommonViewModel) : PagingSource<In
 
     fun mapToUser(apiUser: getUser): User {
         return User(
+            slNo = 0,
             uuid = apiUser.login.username,
             firstName = apiUser.name.first,
             lastName = apiUser.name.last,
@@ -57,7 +58,9 @@ class UserPagingSource(private val viewModel: CommonViewModel) : PagingSource<In
             email = apiUser.email,
             phone = apiUser.phone,
             cell = apiUser.cell,
-            picture = apiUser.picture.medium,
+            pictureMedium = apiUser.picture.medium,
+            pictureLarge = apiUser.picture.large,
+            pictureThumbnail = apiUser.picture.thumbnail,
             nationality = apiUser.nat
         )
     }

@@ -89,7 +89,9 @@ class CommonViewModel(
                     email = userData.email,
                     phone = userData.phone,
                     cell = userData.cell,
-                    picture = userData.picture.medium,
+                    pictureMedium = userData.picture.medium,
+                    pictureLarge = userData.picture.large,
+                    pictureThumbnail = userData.picture.thumbnail,
                     nationality = userData.nat
                 )
                 usersToInsert.add(user)
@@ -107,7 +109,7 @@ class CommonViewModel(
 
 
     fun getUsers(): Flow<PagingData<User>> {
-        return Pager(PagingConfig(pageSize = 20)) {
+        return Pager(PagingConfig(pageSize = 25)) {
             UserPagingSource(this)
         }.flow.cachedIn(viewModelScope)
     }
@@ -123,6 +125,6 @@ class CommonViewModel(
 
     fun searchUsers(query: String): Flow<PagingData<User>> {
         return commonRepository.getSearchResults(query)
-            .cachedIn(scope)
+            .cachedIn(viewModelScope)
     }
 }

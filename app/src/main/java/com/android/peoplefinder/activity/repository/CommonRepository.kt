@@ -22,7 +22,7 @@ class CommonRepository(
 
     fun getSearchResults(query: String): Flow<PagingData<User>> {
         return Pager(
-            config = PagingConfig(pageSize = 20),
+            config = PagingConfig(pageSize = 25),
             pagingSourceFactory = { dao.searchUsers("%$query%") }
         ).flow
     }

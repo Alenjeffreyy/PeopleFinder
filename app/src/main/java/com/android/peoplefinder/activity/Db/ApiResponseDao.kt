@@ -20,8 +20,9 @@ interface ApiResponseDao {
     @Query("SELECT * FROM ApiResponse WHERE `key` = :key")
     suspend fun getResponseByKey(key: Int): ApiResponse?
 
-    @Query("SELECT * FROM users WHERE first_name || ' ' || last_name LIKE :query ORDER BY first_name")
+    @Query("""SELECT * FROM users WHERE first_name LIKE :query OR last_name LIKE :query OR (first_name || ' ' || last_name) LIKE :query ORDER BY first_name""")
     fun searchUsers(query: String): PagingSource<Int, User>
+
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertUsers(users: List<User>)
