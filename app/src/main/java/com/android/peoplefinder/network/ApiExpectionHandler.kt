@@ -3,7 +3,6 @@ package com.android.peoplefinder.network
 import android.content.Context
 import android.widget.Toast
 import com.android.peoplefinder.R
-import com.android.peoplefinder.helper.SessionManager
 import com.google.gson.Gson
 import retrofit2.HttpException
 import retrofit2.Response

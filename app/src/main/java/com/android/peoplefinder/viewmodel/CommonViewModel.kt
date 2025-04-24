@@ -1,32 +1,26 @@
 package com.android.peoplefinder.viewmodel
 
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.viewModelScope
-import androidx.paging.PagingData
-import androidx.paging.cachedIn
-import com.android.peoplefinder.activity.Db.ApiResponse
-import com.android.peoplefinder.activity.Db.User
-import com.android.peoplefinder.activity.repository.CommonRepository
-import com.android.peoplefinder.activity.repository.LocalDBRepository
-
-import com.android.peoplefinder.helper.Enums
-import com.android.peoplefinder.network.ApiExceptionHandler
-import com.android.peoplefinder.network.NetworkResult
-import com.google.gson.Gson
-
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.launch
-
-
 
 import android.app.Application
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.viewModelScope
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
+import androidx.paging.PagingData
+import androidx.paging.PagingSource
+import androidx.paging.cachedIn
+import com.android.peoplefinder.activity.Db.ApiResponse
+import com.android.peoplefinder.activity.Db.User
 import com.android.peoplefinder.activity.UserPagingSource
+import com.android.peoplefinder.activity.repository.CommonRepository
+import com.android.peoplefinder.activity.repository.LocalDBRepository
 import com.android.peoplefinder.dataclass.Response
-import org.json.JSONObject
+import com.android.peoplefinder.dataclass.getUser
+import com.android.peoplefinder.helper.Enums
+import com.android.peoplefinder.network.ApiExceptionHandler
+import com.android.peoplefinder.network.NetworkResult
+import kotlinx.coroutines.flow.Flow
 
 
 class CommonViewModel(
@@ -36,25 +30,24 @@ class CommonViewModel(
     private val localRepository: LocalDBRepository
 ) : AndroidViewModel(application) {
 
-    private val scope = viewModelScope
     suspend fun apiRequestSuspended(
         requestCode: Int,
         hashMap: HashMap<String, Int>
     ): NetworkResult<Any> {
         return try {
             val response = when (requestCode) {
-                Enums.REQ_DATA -> commonRepository.getUserData(hashMap) // Assume this returns a Response object
+                Enums.REQ_DATA -> commonRepository.getUserData(hashMap)
                 else -> return NetworkResult.Error("Unknown requestCode", requestCode = requestCode)
             }
 
-            Log.d("apiRequestSuspended", "Response: ${response.body().toString() ?: "Response is null"}")
+            Log.d("apiRequestSuspended", "Response: ${response.body().toString()}")
 
             response.body()?.let {
                 try {
-                    val parsedResponse = it as? com.android.peoplefinder.dataclass.Response
+                    val parsedResponse = it as? Response
                     parsedResponse?.let { response ->
                         val userList = response.results
-                        insertResponseInDatabase(response, requestCode)
+                        insertResponseInDatabase(response)
                         Log.d("apiRequestSuspended", "Parsed User List: $userList")
                         NetworkResult.Success(userList, requestCode)
                     } ?: NetworkResult.Error("Parsed response is null", requestCode = requestCode)
@@ -71,11 +64,7 @@ class CommonViewModel(
     }
 
 
-
-
-
-
-    private suspend fun insertResponseInDatabase(response: Response, requestCode: Int) {
+    private suspend fun insertResponseInDatabase(response: Response) {
         try {
             val usersToInsert = mutableListOf<User>()
 
@@ -89,6 +78,8 @@ class CommonViewModel(
                     email = userData.email,
                     phone = userData.phone,
                     cell = userData.cell,
+                    latitude = userData.location.coordinates.latitude,
+                    longitude = userData.location.coordinates.longitude,
                     pictureMedium = userData.picture.medium,
                     pictureLarge = userData.picture.large,
                     pictureThumbnail = userData.picture.thumbnail,
@@ -106,25 +97,40 @@ class CommonViewModel(
         }
     }
 
-
-
-    fun getUsers(): Flow<PagingData<User>> {
-        return Pager(PagingConfig(pageSize = 25)) {
-            UserPagingSource(this)
-        }.flow.cachedIn(viewModelScope)
+    fun mapToUser(apiUser: getUser): User {
+        return User(
+            slNo = 0,
+            uuid = apiUser.login.username,
+            firstName = apiUser.name.first,
+            lastName = apiUser.name.last,
+            gender = apiUser.gender,
+            latitude = apiUser.location.coordinates.latitude,
+            longitude = apiUser.location.coordinates.longitude,
+            location = "${apiUser.location.street.number} ${apiUser.location.street.name}, ${apiUser.location.city}, ${apiUser.location.country}",
+            email = apiUser.email,
+            phone = apiUser.phone,
+            cell = apiUser.cell,
+            pictureMedium = apiUser.picture.medium,
+            pictureLarge = apiUser.picture.large,
+            pictureThumbnail = apiUser.picture.thumbnail,
+            nationality = apiUser.nat
+        )
     }
 
     val pagedUsers: Flow<PagingData<User>> = Pager(PagingConfig(pageSize = 20)) {
         localRepository.getUsers()
     }.flow.cachedIn(viewModelScope)
 
-
-    suspend fun getApiResponse(requestCode: Int): ApiResponse? {
-        return localRepository.getApiResponse(requestCode)
-    }
-
     fun searchUsers(query: String): Flow<PagingData<User>> {
         return commonRepository.getSearchResults(query)
             .cachedIn(viewModelScope)
     }
+    suspend fun isUserDataAvailable(): Boolean {
+        return commonRepository.getUserCount() > 0
+    }
+
+    fun getLocalPagingSource(): PagingSource<Int, User> {
+        return commonRepository.getLocalPagingSource()
+    }
+
 }

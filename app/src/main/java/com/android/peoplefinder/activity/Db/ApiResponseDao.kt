@@ -29,6 +29,22 @@ interface ApiResponseDao {
 
     @Query("SELECT * FROM users")
     fun getUsers(): PagingSource<Int, User>
+
+    @Query("SELECT COUNT(*) FROM users")
+    suspend fun getUserCount(): Int
+
+    @Query("SELECT * FROM users ORDER BY slNo ASC")
+    fun getAllUsersPagingSource(): PagingSource<Int, User>
+
+    @Query("DELETE FROM users")
+    suspend fun clearAll()
+
+        @Insert(onConflict = OnConflictStrategy.REPLACE)
+        suspend fun insertAll(users: List<User>)
+
+
+
+
 }
 
 

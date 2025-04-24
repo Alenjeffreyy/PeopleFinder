@@ -3,12 +3,11 @@ package com.android.peoplefinder.activity.repository
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
+import androidx.paging.PagingSource
 import com.android.peoplefinder.activity.Db.ApiResponseDao
 import com.android.peoplefinder.activity.Db.User
 import com.android.peoplefinder.dataclass.Response
-
 import com.android.peoplefinder.interfaces.ApiInterface
-import com.google.gson.JsonObject
 import kotlinx.coroutines.flow.Flow
 
 class CommonRepository(
@@ -26,4 +25,13 @@ class CommonRepository(
             pagingSourceFactory = { dao.searchUsers("%$query%") }
         ).flow
     }
+    suspend fun getUserCount(): Int {
+        return dao.getUserCount()
+    }
+
+    fun getLocalPagingSource(): PagingSource<Int, User> {
+        return dao.getAllUsersPagingSource()
+    }
+
+
 }

@@ -24,7 +24,7 @@ class UserPagingSource(private val viewModel: CommonViewModel) : PagingSource<In
             when (result) {
                 is NetworkResult.Success -> {
                     val getUserList = result.data as? List<getUser> ?: emptyList()
-                    val userList = getUserList.map { mapToUser(it) }
+                    val userList = getUserList.map { viewModel.mapToUser(it) }
 
                     LoadResult.Page(
                         data = userList,
@@ -47,23 +47,7 @@ class UserPagingSource(private val viewModel: CommonViewModel) : PagingSource<In
         }
     }
 
-    fun mapToUser(apiUser: getUser): User {
-        return User(
-            slNo = 0,
-            uuid = apiUser.login.username,
-            firstName = apiUser.name.first,
-            lastName = apiUser.name.last,
-            gender = apiUser.gender,
-            location = "${apiUser.location.street.number} ${apiUser.location.street.name}, ${apiUser.location.city}, ${apiUser.location.country}",
-            email = apiUser.email,
-            phone = apiUser.phone,
-            cell = apiUser.cell,
-            pictureMedium = apiUser.picture.medium,
-            pictureLarge = apiUser.picture.large,
-            pictureThumbnail = apiUser.picture.thumbnail,
-            nationality = apiUser.nat
-        )
-    }
+
 
     override fun getRefreshKey(state: PagingState<Int, User>): Int? {
         return state.anchorPosition?.let { position ->

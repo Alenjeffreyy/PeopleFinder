@@ -35,6 +35,7 @@ firebase-inappmessaging-display = "20.3.2"
 firebase-messaging-directboot = "20.2.0"
 restring = "5.1.0"
 retrofitVersion = "2.9.0"
+shimmer = "0.5.0"
 viewpump = "3.0.1"
 reword = "2.0.2"
 applocale = "2.0.2"
@@ -104,6 +105,7 @@ firebaseanalytics = { group = "com.google.firebase", name = "firebase-analytics"
 firebaseinappmessagingdisplay = { group = "com.google.firebase", name = "firebase-inappmessaging-display", version.ref = "firebase-inappmessaging-display" }
 firebasemessagingdirectboot = { group = "com.google.firebase", name = "firebase-messaging-directboot", version.ref = "firebase-messaging-directboot" }
 sdp = { group = "com.intuit.sdp", name = "sdp-android", version.ref = "sdp" }
+shimmer = { module = "com.facebook.shimmer:shimmer", version.ref = "shimmer" }
 ssp = { group = "com.intuit.ssp", name = "ssp-android", version.ref = "ssp" }
 mulitdex = { group = "androidx.multidex", name = "multidex", version.ref = "multidex" }
 android-gradle = { module = "com.android.tools.build:gradle", version.ref = "gradle" }

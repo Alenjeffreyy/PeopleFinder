@@ -63,7 +63,7 @@ dependencies {
     implementation(libs.retrofit)
     implementation(libs.retrofitgson)
     ksp(libs.room.compiler)
-
+    implementation (libs.shimmer)
 
 
 

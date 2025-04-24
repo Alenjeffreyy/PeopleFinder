@@ -3,6 +3,7 @@ package com.android.peoplefinder.activity.Db
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import java.io.Serializable
 
 @Entity(tableName = "users")
 data class User(
@@ -15,6 +16,8 @@ data class User(
     val lastName: String,
     val gender: String,
     val location: String,
+    val latitude: String,
+    val longitude: String,
     val email: String,
     val phone: String,
     val cell: String,
@@ -23,4 +26,4 @@ data class User(
     val pictureThumbnail: String,
     val nationality: String
 
-)
+) : Serializable

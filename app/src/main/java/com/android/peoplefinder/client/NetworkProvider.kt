@@ -1,9 +1,5 @@
 import android.content.Context
-import com.android.peoplefinder.client.AppController
 import com.android.peoplefinder.client.NetworkInterceptor
-import com.android.peoplefinder.helper.Constants
-import com.android.peoplefinder.helper.Constants.BASE_URL
-import com.android.peoplefinder.helper.Constants.WEATHER_API_URL
 import com.android.peoplefinder.interfaces.ApiInterface
 import com.google.gson.FieldNamingPolicy
 import com.google.gson.Gson

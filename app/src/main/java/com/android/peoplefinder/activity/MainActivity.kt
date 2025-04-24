@@ -18,9 +18,11 @@ import com.bumptech.glide.Glide
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.view.isVisible
 import androidx.core.widget.doAfterTextChanged
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.paging.LoadState
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.cachedIn
@@ -84,12 +86,11 @@ class MainActivity : BaseActivity() {
         )
         viewModel = ViewModelProvider(this, factory).get(CommonViewModel::class.java)
 
-
-
         userAdapter = UserAdapter { user ->
-
-        }
-
+            val intent = Intent(this, UserProfileActivity::class.java)
+            intent.putExtra("user", user)
+            startActivity(intent)
+            }
         binding.rvUser.apply {
             layoutManager = StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL)
             adapter = userAdapter
@@ -98,14 +99,43 @@ class MainActivity : BaseActivity() {
         rvViewedState?.let { state ->
             binding.rvUser.layoutManager?.onRestoreInstanceState(state)
         }
-        val pager = Pager(
-            config = PagingConfig(pageSize = 25, enablePlaceholders = false),
+
+        userAdapter.addLoadStateListener { loadState ->
+
+            val isInitialLoading = loadState.source.refresh is LoadState.Loading
+            val isAppending = loadState.append is LoadState.Loading
+
+            if (isInitialLoading) {
+                binding.shimmerLayout.visibility = View.VISIBLE
+                binding.shimmerLayout.startShimmer()
+                binding.rvUser.visibility = View.GONE
+            } else {
+                binding.shimmerLayout.stopShimmer()
+                binding.shimmerLayout.visibility = View.GONE
+                binding.rvUser.visibility = View.VISIBLE
+            }
+
+            binding.paginationProgressBar.visibility = if (isAppending) View.VISIBLE else View.GONE
+
+            val errorState = loadState.source.append as? LoadState.Error
+                ?: loadState.source.prepend as? LoadState.Error
+                ?: loadState.refresh as? LoadState.Error
+
+            errorState?.let {
+                Toast.makeText(applicationContext, "Error: ${it.error.localizedMessage}", Toast.LENGTH_LONG).show()
+            }
+        }
+
+
+
+        val pager = Pager(config = PagingConfig(pageSize = 25, enablePlaceholders = false),
             pagingSourceFactory = { UserPagingSource(viewModel) }
         ).flow.cachedIn(lifecycleScope)
 
         lifecycleScope.launchWhenStarted {
             pager.collectLatest { pagingData ->
                 userAdapter.submitData(pagingData)
+
             }
         }
     }
@@ -122,7 +152,7 @@ class MainActivity : BaseActivity() {
 
                     }
                 } else {
-                    viewModel.getUsers().collectLatest { pagingData ->
+                    viewModel.pagedUsers.collectLatest { pagingData ->
                         userAdapter.submitData(pagingData)
                     }
                 }
@@ -195,8 +225,7 @@ class MainActivity : BaseActivity() {
                     val description = json?.getAsJsonArray("weather")?.get(0)?.asJsonObject?.get("description")?.asString
                     val iconCode = json?.getAsJsonArray("weather")?.get(0)?.asJsonObject?.get("icon")?.asString
 
-                    // Set values to toolbar views
-                    binding.rltHeadTitle.tvTempCity.text = "${temp?.toInt()}° $cityName"  // Show the dynamic city name
+                    binding.rltHeadTitle.tvTempCity.text = "${temp?.toInt()}° $cityName"
                     binding.rltHeadTitle.tvCondition.text = description?.replaceFirstChar { it.uppercase() }
 
                     val iconUrl = "https://openweathermap.org/img/wn/${iconCode}@2x.png"
@@ -214,23 +243,6 @@ class MainActivity : BaseActivity() {
         }
     }
 
-
-
-
-
-    class MarginItemDecoration(private val space: Int) : RecyclerView.ItemDecoration() {
-        override fun getItemOffsets(
-            outRect: Rect,
-            view: View,
-            parent: RecyclerView,
-            state: RecyclerView.State
-        ) {
-            outRect.left = space / 2
-            outRect.right = space / 2
-            outRect.bottom = space
-            outRect.top = space / 2
-        }
-    }
     private fun showLocationPermissionRationale() {
         androidx.appcompat.app.AlertDialog.Builder(this)
             .setTitle("Location Permission Needed")
@@ -285,7 +297,6 @@ class MainActivity : BaseActivity() {
     }
 
 
-    fun Int.dpToPx(): Int = (this * Resources.getSystem().displayMetrics.density).toInt()
 
     companion object {
         private const val REQUEST_LOCATION_PERMISSION = 1

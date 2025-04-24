@@ -30,9 +30,6 @@ class NetworkInterceptor(private val context: Context) : Interceptor {
         }
     }
 
-    /**
-     * Returns true if the device has an active internet connection
-     */
     private fun isOnline(context: Context): Boolean {
         val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         val network = cm.activeNetwork ?: return false
@@ -40,9 +37,6 @@ class NetworkInterceptor(private val context: Context) : Interceptor {
         return capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
     }
 
-    /**
-     * Returns a dummy JSON error response when offline
-     */
     private fun getNetworkFailResponse(): ResponseBody {
         val jsonObject = JSONObject().apply {
             put("code", 600)

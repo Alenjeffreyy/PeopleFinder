@@ -3,7 +3,6 @@ package com.android.peoplefinder.interfaces
 import com.android.peoplefinder.dataclass.Response
 import com.google.gson.JsonObject
 import retrofit2.http.GET
-import retrofit2.http.Query
 import retrofit2.http.QueryMap
 
 interface ApiInterface {
