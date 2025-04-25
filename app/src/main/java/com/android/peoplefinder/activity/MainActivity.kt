@@ -256,6 +256,7 @@ class MainActivity : BaseActivity() {
                 )
             }
             .setNegativeButton("Cancel") { dialog, _ ->
+                showSettingsRedirectDialog()
                 dialog.dismiss()
             }
             .create()
@@ -284,9 +285,7 @@ class MainActivity : BaseActivity() {
                 dialog.dismiss()
                 openAppSettings()
             }
-            .setNegativeButton("Cancel") { dialog, _ ->
-                dialog.dismiss()
-            }
+            .setCancelable(false)
             .show()
     }
     private fun openAppSettings() {
@@ -301,4 +300,6 @@ class MainActivity : BaseActivity() {
     companion object {
         private const val REQUEST_LOCATION_PERMISSION = 1
     }
+
+
 }

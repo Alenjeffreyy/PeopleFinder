@@ -1,5 +1,8 @@
 package com.android.peoplefinder.activity
 
+import android.annotation.SuppressLint
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -49,7 +52,13 @@ class UserProfileActivity : BaseActivity() {
         }
 
     }
+    @SuppressLint("QueryPermissionsNeeded")
     private fun updateUI(user: User){
+        val latitude = user.latitude.toDouble()
+        val longitude =  user.longitude.toDouble()
+        val phone = user.cell
+        val location = user.location
+
         binding.apply {
             Glide.with(this@UserProfileActivity)
                 .load(user.pictureLarge)
@@ -57,10 +66,20 @@ class UserProfileActivity : BaseActivity() {
 
             tvName.text = "${user.firstName} ${user.lastName}"
             tvEmail.text = user.email
-            tvLocation.text = user.location
-            tvPhone.text = user.phone
-            tvNationality.text = user.nationality
-            fetchWeatherAndAirQuality(user.latitude.toDouble(), user.longitude.toDouble())
+            tvUserLocation.text = user.location
+            tvPhone.text = phone
+            tvGender.text = user.gender
+            fetchWeatherAndAirQuality(latitude,longitude)
+
+            ivMap.setSafeOnClickListener {
+                val uri = Uri.parse("https://www.google.com/maps/search/?api=1&query=$latitude,$longitude")
+                val intent = Intent(Intent.ACTION_VIEW, uri)
+                startActivity(intent)
+            }
+            ivCall.setSafeOnClickListener {
+                val callIntent = Intent(Intent.ACTION_DIAL, Uri.parse("tel:$phone"))
+                startActivity(callIntent)
+            }
         }
 
     }
@@ -84,14 +103,10 @@ class UserProfileActivity : BaseActivity() {
                     val json = response.body()
                     val description = json?.getAsJsonArray("weather")?.get(0)?.asJsonObject?.get("description")?.asString
                     val temp = json?.getAsJsonObject("main")?.get("temp")?.asDouble
-                    val cityName = json?.get("name")?.asString
                     val iconCode = json?.getAsJsonArray("weather")?.get(0)?.asJsonObject?.get("icon")?.asString
 
                     binding.tvTemperature.text = "Temp: ${temp?.toInt()}°C"
-                    binding.tvLocation.text = cityName
-
                     binding.tvAirQuality.text = description?.replaceFirstChar { it.uppercase() }
-
 
                     val iconUrl = "https://openweathermap.org/img/wn/${iconCode}@2x.png"
                     Glide.with(this@UserProfileActivity)
