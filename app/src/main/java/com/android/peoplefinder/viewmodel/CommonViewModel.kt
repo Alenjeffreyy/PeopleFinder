@@ -58,7 +58,7 @@ class CommonViewModel(
                 }
             } ?: NetworkResult.Error("Response is null", requestCode = requestCode)
         } catch (e: Exception) {
-            Log.e("apiRequestSuspended", "Error occurred: ${e.message}")
+            Log.e("apiRequestSuspended", "Error occurred from the server end: ${e.message}")
             NetworkResult.Error(e.message ?: "Unknown error", requestCode = requestCode)
         }
     }

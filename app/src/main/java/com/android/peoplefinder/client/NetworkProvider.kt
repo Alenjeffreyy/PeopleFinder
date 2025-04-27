@@ -36,8 +36,8 @@ object NetworkProvider {
 
     fun getOkHttpClient(context: Context): OkHttpClient {
         return okHttpClient ?: OkHttpClient.Builder()
-            .connectTimeout(30, TimeUnit.SECONDS)
-            .readTimeout(30, TimeUnit.SECONDS)
+            .connectTimeout(120, TimeUnit.SECONDS)
+            .readTimeout(120, TimeUnit.SECONDS)
             .retryOnConnectionFailure(true)
             .addInterceptor(getHttpLoggingInterceptor())
             .addInterceptor(NetworkInterceptor(context))
